@@ -2,75 +2,93 @@
 
 # Bonus Fetcher
 
-Search YouTube for official special features (behind the scenes, deleted scenes, interviews, featurettes) and download them directly into your Emby/Jellyfin library structure.
+Search YouTube for official special features (behind the scenes, deleted scenes, interviews, featurettes) and download them directly into your Emby, Jellyfin, or Plex library. 
+
+**NOTE**: This app was made with Claude Code. I am not a developer, I just wanted this tool to exist. ❤️
+
+---
 
 ## Features
 
 - Scans your movies folder automatically
-- Searches YouTube for official BTS/extras per movie
-- Shows thumbnails, duration, channel name
-- Auto-suggests the right Emby subfolder (behind the scenes / deleted scenes / interviews / featurettes / extras)
+- Searches YouTube for extras when you select a movie
+- Shows thumbnails, duration, and channel name for each result
+- Auto-suggests the right subfolder (behind the scenes / deleted scenes / interviews / featurettes / extras)
 - Downloads via yt-dlp + ffmpeg, names and places files correctly
-- Shows download queue/status
+- Live download progress bars with speed and ETA
+- **Automation** - automatically downloads extras for new movies as they appear in your library
+- Supports both **Emby/Jellyfin** and **Plex** folder structures
 
 ---
 
-## Unraid Install (Compose Manager)
+## Install
 
-### 1. Install the Compose Manager plugin
-In Unraid → Apps → search **"Compose Manager"** → Install.
+### Prerequisites
+- Docker and Docker Compose
 
-### 2. Copy the project to your Unraid server
+### Setup
 
-```bash
-# SSH into Unraid
-scp -r bonus-fetcher/ root@YOUR_UNRAID_IP:/mnt/user/appdata/bonus-fetcher
-```
-
-Or use the Unraid file manager to upload the folder to `/mnt/user/appdata/bonus-fetcher`.
-
-### 3. Edit docker-compose.yml
-
-Open `/mnt/user/appdata/bonus-fetcher/docker-compose.yml` and update the movies volume path:
+1. Clone or download this repo
+2. Edit `docker-compose.yml` and set your movies path:
 
 ```yaml
-volumes:
-  - /mnt/user/Media/Movies:/movies:rw   # Change left side to your actual path
+version: "3.8"
+services:
+  bonus-fetcher:
+    build: .
+    container_name: bonus-fetcher
+    restart: unless-stopped
+    ports:
+      - "8787:8080"
+    volumes:
+      - /path/to/your/movies:/movies:rw
+    environment:
+      - MOVIES_PATH=/movies
+      - MEDIA_SERVER=emby  # Change to "plex" for Plex users
 ```
 
-### 4. Add via Compose Manager
-
-- Go to **Docker** tab → **Compose Manager**
-- Click **Add New Stack**
-- Name it `bonus-fetcher`
-- Set the path to `/mnt/user/appdata/bonus-fetcher`
-- Click **Compose Up**
-
-### 5. Open the UI
-
-Navigate to `http://YOUR_UNRAID_IP:8787`
-
----
-
-## Manual Docker Run (alternative)
+3. Start the container:
 
 ```bash
-docker build -t bonus-fetcher /mnt/user/appdata/bonus-fetcher
-
-docker run -d \
-  --name bonus-fetcher \
-  --restart unless-stopped \
-  -p 8787:8080 \
-  -v /mnt/user/Media/Movies:/movies:rw \
-  -e MOVIES_PATH=/movies \
-  bonus-fetcher
+docker compose up -d
 ```
+
+4. Open `http://YOUR_SERVER_IP:8787`
 
 ---
 
-## Emby Folder Structure
+## Plex Mode
 
-Files are saved following Emby's spec:
+By default Bonus Fetcher uses Emby/Jellyfin folder naming (lowercase). To use Plex's Title Case folder structure, set the environment variable in your `docker-compose.yml`:
+
+```yaml
+environment:
+  - MEDIA_SERVER=plex
+```
+
+Then restart the container. The app will use Plex's expected folder names (`Behind The Scenes`, `Deleted Scenes`, `Interviews`, etc.) and the UI will update to reflect this.
+
+---
+
+## Automation
+
+Bonus Fetcher can automatically download extras whenever a new movie appears in your library.
+
+Go to **Settings** in the app to configure:
+
+- **Enable automation** — toggle auto-downloading on/off
+- **Check every (hours)** — how often to scan for new movies
+- **Videos per movie** — how many extras to download per new movie (default: 5)
+
+When enabled, the app polls your movies folder on the configured schedule. When it detects a new movie folder it hasn't seen before, it searches YouTube and downloads the top results automatically — the same videos you'd see at the top of a manual search.
+
+**Important:** On first run, click **Mark All as Seen** in the Settings page to prevent Bonus Fetcher from downloading extras for your entire existing library at once.
+
+The **Automation Log** in Settings shows a history of every auto-download run.
+
+---
+
+## Emby / Jellyfin Folder Structure
 
 ```
 /movies
@@ -88,16 +106,34 @@ Files are saved following Emby's spec:
       Theatrical Trailer.mp4
 ```
 
-Emby will automatically pick these up — no library rescans needed beyond the normal scheduled one (or trigger one manually).
+## Plex Folder Structure
+
+```
+/movies
+  /Interstellar (2014)
+    Interstellar (2014).mkv
+    /Behind The Scenes/
+      The Science of Interstellar.mp4
+    /Deleted Scenes/
+      Alternate Ending.mp4
+    /Interviews/
+      Christopher Nolan Interview.mp4
+    /Featurettes/
+      IMAX Making Of.mp4
+```
 
 ---
 
-## Updating yt-dlp
+## Keeping yt-dlp Updated
 
-YouTube changes frequently. If downloads stop working, update yt-dlp inside the container:
+yt-dlp updates automatically every time the container starts. If downloads stop working unexpectedly, force an update manually:
 
 ```bash
 docker exec -it bonus-fetcher pip install -U yt-dlp
 ```
 
-Or just rebuild the container.
+Or rebuild the container:
+
+```bash
+docker compose up --build -d
+```
