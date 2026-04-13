@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extras Grabber</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0c0f;
+      --surface: #13131a;
+      --surface2: #1c1c27;
+      --surface3: #242432;
+      --border: #2a2a3d;
+      --accent: #e8c84a;
+      --accent2: #c47af5;
+      --text: #e8e8f0;
+      --text-muted: #6b6b8a;
+      --text-dim: #9999b5;
+      --red: #f05c5c;
+      --green: #4af0a0;
+      --blue: #4ab0f0;
+      --radius: 10px;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    /* ─── Layout ─── */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    .sidebar {
+      width: 300px;
+      min-width: 300px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ─── Header ─── */
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .logo span { color: var(--text-muted); font-size: 13px; font-family: 'DM Sans', sans-serif; letter-spacing: 0; display: block; margin-top: 3px; font-weight: 400; }
+
+    .search-box {
+      margin: 12px 20px 0;
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px 8px 34px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box .icon {
+      position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+      color: var(--text-muted); font-size: 14px; pointer-events: none;
+    }
+
+    /* ─── Movie List ─── */
+    .movie-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .movie-list::-webkit-scrollbar { width: 4px; }
+    .movie-list::-webkit-scrollbar-track { background: transparent; }
+    .movie-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .movie-item {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .movie-item:hover { background: var(--surface2); }
+    .movie-item.active {
+      background: var(--surface2);
+      border-left-color: var(--accent);
+    }
+    .movie-item .movie-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .movie-item .extras-badge {
+      background: var(--surface3);
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .movie-item.active .extras-badge { background: rgba(232,200,74,0.12); color: var(--accent); }
+
+    .movie-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* ─── Main Panel ─── */
+    .main-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+    }
+    .main-header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 1.5px;
+      flex: 1;
+    }
+    .main-header .path {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      padding: 4px 10px;
+      border-radius: 5px;
+      max-width: 350px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 7px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: var(--accent); color: #0c0c0f; }
+    .btn-primary:hover:not(:disabled) { opacity: 0.88; }
+    .btn-ghost { background: var(--surface3); color: var(--text); }
+    .btn-ghost:hover:not(:disabled) { background: var(--border); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-download { background: rgba(74,240,160,0.12); color: var(--green); border: 1px solid rgba(74,240,160,0.25); }
+    .btn-download:hover:not(:disabled) { background: rgba(74,240,160,0.2); }
+
+    /* ─── Content ─── */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+    }
+    .content-area::-webkit-scrollbar { width: 5px; }
+    .content-area::-webkit-scrollbar-track { background: transparent; }
+    .content-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ─── Empty State ─── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+      color: var(--text-muted);
+    }
+    .empty-state .big-icon { font-size: 56px; opacity: 0.3; }
+    .empty-state h2 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; color: var(--text-dim); }
+    .empty-state p { font-size: 13px; text-align: center; max-width: 300px; line-height: 1.6; }
+
+    /* ─── Loading ─── */
+    .loading-state {
+      display: flex; align-items: center; justify-content: center;
+      height: 200px; gap: 12px; color: var(--text-muted);
+    }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Existing Extras ─── */
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .existing-extras {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .existing-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .existing-chip .cat-tag {
+      font-size: 10px;
+      background: var(--surface3);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ─── Results Grid ─── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative;
+    }
+    .result-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .result-card.selected {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+    .result-card.selected::before {
+      content: '✓';
+      position: absolute;
+      top: 8px; right: 8px;
+      background: var(--accent);
+      color: #0c0c0f;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 12px;
+      z-index: 2;
+    }
+
+    .card-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--surface2);
+    }
+    .card-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    .result-card:hover .card-thumb img { transform: scale(1.04); }
+    .card-duration {
+      position: absolute;
+      bottom: 6px; right: 6px;
+      background: rgba(0,0,0,0.82);
+      color: #fff;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-channel { font-size: 11px; color: var(--text-muted); }
+
+    .card-footer {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cat-select {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+    .cat-select:focus { border-color: var(--accent); }
+
+    .select-toggle {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .select-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .result-card.selected .select-toggle { background: var(--accent); border-color: var(--accent); color: #0c0c0f; }
+
+    /* ─── Download Queue ─── */
+    .queue-panel {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .queue-info { flex: 1; font-size: 13px; color: var(--text-muted); }
+    .queue-info strong { color: var(--accent); }
+
+    /* ─── Jobs panel ─── */
+    .jobs-list { display: flex; flex-direction: column; gap: 8px; margin-top: 24px; }
+    .job-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .job-item .job-title { flex: 1; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .job-status {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .job-status.queued { background: rgba(232,200,74,0.1); color: var(--accent); }
+    .job-status.downloading { background: rgba(74,176,240,0.1); color: var(--blue); }
+    .job-status.done { background: rgba(74,240,160,0.1); color: var(--green); }
+    .job-status.error { background: rgba(240,92,92,0.1); color: var(--red); }
+
+    /* ─── Tabs ─── */
+    .tabs { display: flex; gap: 2px; margin-bottom: 20px; }
+    .tab {
+      padding: 7px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { background: var(--surface2); color: var(--accent); }
+
+    /* ─── Utility ─── */
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--surface3);
+      color: var(--text-muted);
+    }
+
+    .no-movies {
+      text-align: center; color: var(--text-muted); padding: 40px;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface2) 25%, var(--surface3) 50%, var(--surface2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* ─── Progress Bar ─── */
+    .progress-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .progress-bar-track {
+      height: 4px;
+      background: var(--surface3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .progress-bar-fill.done { background: var(--green); }
+    .progress-bar-fill.error { background: var(--red); }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ─── Settings ─── */
+    .settings-panel { max-width: 680px; }
+    .settings-section { margin-bottom: 32px; }
+    .settings-section h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      gap: 20px;
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { flex: 1; }
+    .setting-label strong { display: block; font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+    .setting-label span { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .setting-control { flex-shrink: 0; }
+    .toggle-switch {
+      position: relative; width: 44px; height: 24px;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: var(--surface3);
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      left: 3px; top: 3px;
+      width: 18px; height: 18px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-track { background: rgba(232,200,74,0.25); }
+    .toggle-switch input:checked + .toggle-track::after {
+      transform: translateX(20px);
+      background: var(--accent);
+    }
+    .setting-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      width: 80px;
+      text-align: center;
+      outline: none;
+    }
+    .setting-input:focus { border-color: var(--accent); }
+    .tag-input-wrap {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      min-height: 44px;
+      cursor: text;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .tag-input-wrap:focus-within { border-color: var(--accent); }
+    .kw-tag {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: flex; align-items: center; gap: 5px;
+      cursor: default;
+    }
+    .kw-tag .remove { cursor: pointer; color: var(--text-muted); font-size: 13px; line-height: 1; }
+    .kw-tag .remove:hover { color: var(--red); }
+    .tag-input {
+      background: none; border: none; outline: none;
+      color: var(--text); font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      min-width: 120px; flex: 1;
+    }
+    .auto-log { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .log-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .log-entry .log-movie { font-weight: 600; font-size: 13px; }
+    .log-entry .log-time { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+    .log-entry .log-items { margin-top: 8px; display: flex; flex-direction: column; gap: 3px; }
+    .log-item { font-size: 12px; color: var(--text-dim); display: flex; gap: 8px; align-items: center; }
+    .score-badge {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      padding: 1px 6px; border-radius: 3px;
+      background: var(--surface3); color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .score-badge.high { background: rgba(74,240,160,0.1); color: var(--green); }
+    .score-badge.mid { background: rgba(232,200,74,0.1); color: var(--accent); }
+    .score-badge.low { background: rgba(240,92,92,0.1); color: var(--red); }
+    .automation-status {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px;
+      background: var(--surface2);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--text-muted); flex-shrink: 0;
+    }
+    .status-dot.on { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">Extras Grabber<span>for Emby / Jellyfin</span></div>
+      </div>
+      <div class="search-box">
+        <span class="icon">🔍</span>
+        <input type="text" id="movieSearch" placeholder="Filter movies…" oninput="filterMovies(this.value)" />
+      </div>
+      <div class="movie-list" id="movieList">
+        <div class="loading-state"><div class="spinner"></div> Loading movies…</div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="main-header" id="mainHeader">
+        <h1 id="headerTitle">Select a Movie</h1>
+        <div id="headerPath" class="path" style="display:none"></div>
+        <button class="btn btn-ghost btn-sm" onclick="showView('jobs')" id="jobsBtn" style="display:none">⬇ Downloads</button>
+        <button class="btn btn-ghost btn-sm" onclick="showSettingsView()">⚙ Settings</button>
+        <button class="btn btn-primary" id="searchBtn" style="display:none" onclick="doSearch()">🔎 Search YouTube</button>
+      </div>
+
+      <div class="content-area" id="contentArea">
+        <div class="empty-state">
+          <div class="big-icon">🎬</div>
+          <h2>No Movie Selected</h2>
+          <p>Pick a movie from the sidebar to search for official extras and special features on YouTube.</p>
+        </div>
+      </div>
+
+      <div class="queue-panel" id="queuePanel" style="display:none">
+        <div class="queue-info">
+          <strong id="selectedCount">0</strong> selected &nbsp;·&nbsp;
+          <span id="jobCount">0 downloads in queue</span>
+        </div>
+        <button class="btn btn-ghost" id="topFiveBtn" onclick="downloadTopFive()" style="display:none">⬇ Top 5</button>
+        <button class="btn btn-download" id="downloadBtn" onclick="downloadSelected()" disabled>⬇ Download Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+    let allMovies = [];
+    let filteredMovies = [];
+    let selectedMovie = null;
+    let searchResults = [];
+    let selectedVideos = {}; // url -> {title, category}
+    let jobs = {};
+    let currentView = 'search'; // 'search' | 'jobs'
+    let jobPollInterval = null;
+
+    let CATEGORIES = [
+      'behind the scenes',
+      'deleted scenes',
+      'interviews',
+      'featurettes',
+      'extras',
+      'trailers',
+    ];
+    let mediaServer = 'emby';
+
+    // ─── Init ───
+    async function init() {
+      attachGridListener();
+      await loadConfig();
+      await loadMovies();
+      startJobPoll();
+    }
+
+    async function loadConfig() {
+      try {
+        const res = await fetch(`${API}/api/config`);
+        const cfg = await res.json();
+        mediaServer = cfg.media_server;
+        CATEGORIES = cfg.categories;
+        const logoEl = document.querySelector('.logo span');
+        if (logoEl) {
+          logoEl.textContent = mediaServer === 'plex' ? 'for Plex' : 'for Emby / Jellyfin';
+        }
+      } catch(e) {
+        console.warn('Could not load config, using defaults');
+      }
+    }
+
+    async function loadMovies() {
+      try {
+        const res = await fetch(`${API}/api/movies`);
+        allMovies = await res.json();
+        filteredMovies = allMovies;
+        renderMovieList();
+      } catch(e) {
+        document.getElementById('movieList').innerHTML =
+          `<div class="no-movies">⚠️ Could not load movies.<br/><small>${e.message}</small></div>`;
+      }
+    }
+
+    function filterMovies(q) {
+      q = q.toLowerCase();
+      filteredMovies = allMovies.filter(m => m.name.toLowerCase().includes(q));
+      renderMovieList();
+    }
+
+    function renderMovieList() {
+      const el = document.getElementById('movieList');
+      if (!filteredMovies.length) {
+        el.innerHTML = '<div class="no-movies">No movies found</div>';
+        return;
+      }
+      el.innerHTML = filteredMovies.map((m, i) => `
+        <div class="movie-item ${selectedMovie?.name === m.name ? 'active' : ''}" onclick="selectMovieByIndex(${i})">
+          <span class="movie-icon">🎬</span>
+          <span class="movie-name">${escapeHtml(m.name)}</span>
+          ${m.existing_extras.length ? `<span class="extras-badge">${m.existing_extras.length}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function selectMovieByIndex(i) {
+      const m = filteredMovies[i];
+      if (!m) return;
+      selectMovie(m);
+    }
+
+    function selectMovie(m) {
+      selectedMovie = m;
+      selectedVideos = {};
+      searchResults = [];
+      currentView = 'search';
+      renderMovieList();
+
+      document.getElementById('headerTitle').textContent = selectedMovie.name;
+      document.getElementById('headerPath').textContent = selectedMovie.path;
+      document.getElementById('headerPath').style.display = '';
+      document.getElementById('searchBtn').style.display = 'none';
+      document.getElementById('jobsBtn').style.display = '';
+      document.getElementById('topFiveBtn').style.display = 'none';
+      document.getElementById('queuePanel').style.display = '';
+      updateQueueBar();
+      renderSearchView();
+      doSearch();
+    }
+
+    // ─── Search ───
+    async function doSearch() {
+      const btn = document.getElementById('searchBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Searching…';
+      renderLoading();
+
+      try {
+        const res = await fetch(`${API}/api/search`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ movie_name: selectedMovie.name, max_results: 20 })
+        });
+        searchResults = await res.json();
+        renderSearchView();
+      } catch(e) {
+        document.getElementById('contentArea').innerHTML =
+          `<div class="empty-state"><div class="big-icon">⚠️</div><h2>Search Failed</h2><p>${e.message}</p></div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔎 Search YouTube';
+      }
+    }
+
+    function renderLoading() {
+      document.getElementById('contentArea').innerHTML =
+        `<div class="loading-state"><div class="spinner"></div> Searching YouTube…</div>`;
+    }
+
+    function renderSearchView() {
+      const ca = document.getElementById('contentArea');
+      let html = '';
+
+      // Existing extras
+      if (selectedMovie.existing_extras.length) {
+        html += `<div class="section-title">Already Downloaded</div>
+        <div class="existing-extras">
+          ${selectedMovie.existing_extras.map(e => `
+            <div class="existing-chip">
+              <span class="cat-tag">${e.category}</span>
+              ${e.filename}
+            </div>`).join('')}
+        </div>`;
+      }
+
+      if (!searchResults.length && currentView === 'search') {
+        html += `<div class="empty-state" style="height:200px">
+          <div class="big-icon">🎥</div>
+          <h2>Ready to Search</h2>
+          <p>Click "Search YouTube" to find official extras for this movie.</p>
+        </div>`;
+        ca.innerHTML = html;
+        return;
+      }
+
+      if (currentView === 'jobs') {
+        renderJobsView();
+        return;
+      }
+
+      html += `<div class="section-title">YouTube Results</div>
+      <div class="results-grid">
+        ${searchResults.map(r => renderCard(r)).join('')}
+      </div>`;
+
+      if (Object.keys(jobs).length) {
+        html += `<div class="section-title" style="margin-top:28px">Download History</div>`;
+        html += renderJobsHtml();
+      }
+
+      ca.innerHTML = html;
+      if (searchResults.length) {
+        document.getElementById('topFiveBtn').style.display = '';
+      }
+    }
+
+    function renderCard(r) {
+      const isSelected = !!selectedVideos[r.url];
+      const dur = formatDuration(r.duration);
+      const cats = CATEGORIES.map(c =>
+        `<option value="${c}" ${r.suggested_category === c ? 'selected' : ''}>${c}</option>`
+      ).join('');
+
+      return `
+        <div class="result-card ${isSelected ? 'selected' : ''}" id="card-${r.id}" data-id="${escapeHtml(r.id)}">
+          <div class="card-thumb card-toggle" data-id="${escapeHtml(r.id)}">
+            <img src="${r.thumbnail}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22><rect fill=%22%231c1c27%22 width=%22320%22 height=%22180%22/><text x=%22160%22 y=%2295%22 text-anchor=%22middle%22 fill=%22%236b6b8a%22 font-size=%2232%22>🎬</text></svg>'" />
+            ${dur ? `<span class="card-duration">${dur}</span>` : ''}
+          </div>
+          <div class="card-body card-toggle" data-id="${escapeHtml(r.id)}" style="cursor:pointer">
+            <div class="card-title">${escapeHtml(r.title)}</div>
+            <div class="card-channel">📺 ${escapeHtml(r.channel)}</div>
+          </div>
+          <div class="card-footer">
+            <select class="cat-select" id="cat-${r.id}" data-id="${escapeHtml(r.id)}">
+              ${cats}
+            </select>
+            <div class="select-toggle card-toggle" data-id="${escapeHtml(r.id)}" title="${isSelected ? 'Deselect' : 'Select'}">
+              ${isSelected ? '✓' : '+'}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function attachGridListener() {
+      // Called once at init — delegates all card interactions from contentArea
+      const ca = document.getElementById('contentArea');
+      ca.addEventListener('click', function(e) {
+        if (e.target.closest('.cat-select')) return;
+        const toggle = e.target.closest('.card-toggle');
+        if (!toggle) return;
+        const id = toggle.dataset.id;
+        const result = searchResults.find(r => r.id === id);
+        if (!result) return;
+        const catEl = document.getElementById(`cat-${id}`);
+        const category = catEl ? catEl.value : 'extras';
+        if (selectedVideos[result.url]) {
+          delete selectedVideos[result.url];
+        } else {
+          selectedVideos[result.url] = { title: result.title, category };
+        }
+        const card = document.getElementById(`card-${id}`);
+        if (card) {
+          const isNowSelected = !!selectedVideos[result.url];
+          card.classList.toggle('selected', isNowSelected);
+          const btn = card.querySelector('.select-toggle');
+          if (btn) btn.textContent = isNowSelected ? '✓' : '+';
+        }
+        updateQueueBar();
+      });
+      ca.addEventListener('change', function(e) {
+        if (!e.target.classList.contains('cat-select')) return;
+        const id = e.target.dataset.id;
+        const result = searchResults.find(r => r.id === id);
+        if (!result) return;
+        result.suggested_category = e.target.value;
+        if (selectedVideos[result.url]) {
+          selectedVideos[result.url].category = e.target.value;
+        }
+      });
+    }
+
+    function toggleSelect(id, url, title) {
+      // no-op, handled by grid listener
+    }
+
+    function updateCategory(id, url, cat) {
+      if (selectedVideos[url]) {
+        selectedVideos[url].category = cat;
+      }
+    }
+
+    function updateQueueBar() {
+      const count = Object.keys(selectedVideos).length;
+      document.getElementById('selectedCount').textContent = count;
+      document.getElementById('downloadBtn').disabled = count === 0;
+      const jobCount = Object.values(jobs).length;
+      document.getElementById('jobCount').textContent =
+        jobCount ? `${jobCount} download${jobCount !== 1 ? 's' : ''} tracked` : '';
+    }
+
+    // ─── Download ───
+    async function downloadTopFive() {
+      if (!searchResults.length || !selectedMovie) return;
+      const top5 = searchResults.slice(0, 5);
+      for (const r of top5) {
+        if (!selectedVideos[r.url]) {
+          selectedVideos[r.url] = { title: r.title, category: r.suggested_category };
+        }
+      }
+      updateQueueBar();
+      await downloadSelected();
+    }
+
+    async function downloadSelected() {
+      const entries = Object.entries(selectedVideos);
+      if (!entries.length) return;
+
+      for (const [url, {title, category}] of entries) {
+        const jobId = `job-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+        jobs[jobId] = { job_id: jobId, status: 'queued', title };
+
+        try {
+          await fetch(`${API}/api/download`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              movie_path: selectedMovie.path,
+              video_url: url,
+              video_title: title,
+              category,
+              job_id: jobId,
+            })
+          });
+        } catch(e) {
+          jobs[jobId].status = 'error';
+          jobs[jobId].error = e.message;
+        }
+      }
+
+      selectedVideos = {};
+      updateQueueBar();
+      renderSearchView();
+    }
+
+    // ─── Jobs ───
+    function showView(view) {
+      currentView = view;
+      if (view === 'jobs') renderJobsView();
+      else renderSearchView();
+    }
+
+    function renderJobsView() {
+      const ca = document.getElementById('contentArea');
+      if (!Object.keys(jobs).length) {
+        ca.innerHTML = `<div class="empty-state">
+          <div class="big-icon">📭</div>
+          <h2>No Downloads Yet</h2>
+          <p>Select videos and hit Download to start.</p>
+        </div>`;
+        return;
+      }
+      ca.innerHTML = `<div class="section-title">Downloads</div>${renderJobsHtml()}`;
+    }
+
+    function renderJobsHtml() {
+      return `<div class="jobs-list">
+        ${Object.values(jobs).reverse().map(j => {
+          const icon = j.status === 'done' ? '✅' : j.status === 'error' ? '❌' : j.status === 'downloading' ? '⬇️' : '⏳';
+          const pct = j.percent || 0;
+          const fillClass = j.status === 'done' ? 'done' : j.status === 'error' ? 'error' : '';
+          const showBar = j.status === 'downloading' || j.status === 'done' || j.status === 'error';
+          const speedEta = j.status === 'downloading'
+            ? `<span>${j.speed || ''}</span><span>${j.eta ? 'ETA ' + j.eta : ''}</span>`
+            : `<span></span><span>${pct}%</span>`;
+          return `
+          <div class="job-item">
+            <span style="font-size:18px;flex-shrink:0">${icon}</span>
+            <div class="progress-wrap">
+              <span class="job-title">${escapeHtml(j.title || j.job_id)}</span>
+              ${showBar ? `
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill ${fillClass}" style="width:${pct}%"></div>
+              </div>
+              <div class="progress-meta">${speedEta}</div>` : ''}
+            </div>
+            <span class="job-status ${j.status}">${j.status}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    function startJobPoll() {
+      jobPollInterval = setInterval(async () => {
+        const activeJobs = Object.values(jobs).filter(j => j.status === 'queued' || j.status === 'downloading');
+        for (const job of activeJobs) {
+          try {
+            const res = await fetch(`${API}/api/jobs/${job.job_id}`);
+            const updated = await res.json();
+            jobs[job.job_id] = { ...jobs[job.job_id], ...updated };
+          } catch(e) {}
+        }
+        updateQueueBar();
+        if (currentView === 'jobs') renderJobsView();
+      }, 2500);
+    }
+
+    // ─── Utils ───
+    function formatDuration(secs) {
+      if (!secs) return '';
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      if (h) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      return `${m}:${String(s).padStart(2,'0')}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escapeJs(str) {
+      return String(str).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    }
+
+
+    // ─── Settings ───
+    let appSettings = {};
+
+    async function loadAppSettings() {
+      try {
+        const res = await fetch(`${API}/api/settings`);
+        appSettings = await res.json();
+      } catch(e) { console.warn('Could not load settings'); }
+    }
+
+    async function saveSettings() {
+      try {
+        const res = await fetch(`${API}/api/settings`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(appSettings)
+        });
+        appSettings = await res.json();
+        renderSettingsView();
+        showToast('Settings saved');
+      } catch(e) { showToast('Failed to save settings', true); }
+    }
+
+    function showToast(msg, err) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:' + (err ? 'var(--red)' : 'var(--accent)') + ';color:#0c0c0f;padding:10px 18px;border-radius:8px;font-weight:600;font-size:13px;z-index:999';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2500);
+    }
+
+    function showSettingsView() {
+      selectedMovie = null;
+      renderMovieList();
+      document.getElementById('headerTitle').textContent = 'Settings';
+      document.getElementById('headerPath').style.display = 'none';
+      document.getElementById('searchBtn').style.display = 'none';
+      document.getElementById('jobsBtn').style.display = 'none';
+      document.getElementById('queuePanel').style.display = 'none';
+      renderSettingsView();
+      loadAutoLog();
+    }
+
+    async function loadAutoLog() {
+      try {
+        const res = await fetch(API + '/api/auto-log');
+        const log = await res.json();
+        const el = document.getElementById('autoLog');
+        if (!el) return;
+        if (!log.length) {
+          el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No automation runs yet.</div>';
+          return;
+        }
+        el.innerHTML = log.map(function(entry) {
+          const downloads = (entry.downloads || []).map(function(d) {
+            return '<div class="log-item"><span class="score-badge mid">' + escapeHtml(d.category || 'extras') + '</span>' + escapeHtml(d.title) + '</div>';
+          }).join('');
+          const skipped = entry.skipped && entry.skipped.length
+            ? '<div class="log-item" style="color:var(--text-muted)">+ ' + entry.skipped.length + ' skipped (below threshold)</div>'
+            : '';
+          return '<div class="log-entry">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center">' +
+            '<span class="log-movie">' + escapeHtml(entry.movie) + '</span>' +
+            '<span class="log-time">' + entry.timestamp + '</span></div>' +
+            '<div class="log-items">' + downloads + skipped +
+            (entry.error ? '<div class="log-item" style="color:var(--red)">Error: ' + escapeHtml(entry.error) + '</div>' : '') +
+            '</div></div>';
+        }).join('');
+      } catch(e) {}
+    }
+
+    function renderSettingsView() {
+      const ca = document.getElementById('contentArea');
+      const s = appSettings;
+      const isOn = s.automation_enabled;
+
+      ca.innerHTML =
+        '<div class="settings-panel">' +
+        '<div class="automation-status">' +
+        '<div class="status-dot ' + (isOn ? 'on' : '') + '"></div>' +
+        '<span>Automation is <strong>' + (isOn ? 'enabled' : 'disabled') + '</strong></span>' +
+        (isOn ? '<span style="color:var(--text-muted);margin-left:auto;font-size:12px">Runs every ' + s.schedule_hours + 'h</span>' : '') +
+        '</div>' +
+
+        '<div class="settings-section"><h3>Automation</h3>' +
+        '<div class="setting-row"><div class="setting-label"><strong>Enable automation</strong><span>Automatically download extras when new movies are detected</span></div>' +
+        '<label class="toggle-switch setting-control"><input type="checkbox" id="autoToggle" ' + (isOn ? 'checked' : '') + '><div class="toggle-track"></div></label></div>' +
+
+        '<div class="setting-row"><div class="setting-label"><strong>Check every (hours)</strong><span>How often to scan for new movies</span></div>' +
+        '<input type="number" class="setting-input setting-control" id="schedHours" value="' + s.schedule_hours + '" min="1" max="168"></div>' +
+
+        '<div class="setting-row"><div class="setting-label"><strong>Videos per movie</strong><span>Number of extras to auto-download per new movie</span></div>' +
+        '<input type="number" class="setting-input setting-control" id="dlCount" value="' + s.auto_download_count + '" min="1" max="20"></div>' +
+
+        '</div>' +
+
+        '<div style="display:flex;gap:10px;margin-bottom:32px">' +
+        '<button class="btn btn-primary" id="saveBtn">Save Settings</button>' +
+        '<button class="btn btn-ghost" id="scanBtn">Scan for New Movies Now</button>' +
+        '<button class="btn btn-ghost" id="markSeenBtn">Mark All as Seen</button>' +
+        '</div>' +
+
+        '<div class="settings-section"><h3>Automation Log</h3>' +
+        '<div class="auto-log" id="autoLog"><div style="color:var(--text-muted);font-size:13px">Loading...</div></div>' +
+        '</div></div>';
+
+      // Attach events
+      document.getElementById('saveBtn').onclick = function() {
+        appSettings.automation_enabled = document.getElementById('autoToggle').checked;
+        appSettings.schedule_hours = parseInt(document.getElementById('schedHours').value) || 12;
+        appSettings.auto_download_count = parseInt(document.getElementById('dlCount').value) || 5;
+        saveSettings();
+      };
+      document.getElementById('scanBtn').onclick = triggerManualScan;
+      document.getElementById('markSeenBtn').onclick = markAllSeen;
+
+
+
+      loadAutoLog();
+    }
+
+    async function triggerManualScan() {
+      try {
+        await fetch(API + '/api/auto-scan', { method: 'POST' });
+        showToast('Scan started - check the log in a few minutes');
+      } catch(e) { showToast('Scan failed', true); }
+    }
+
+    async function markAllSeen() {
+      try {
+        const res = await fetch(API + '/api/mark-all-seen', { method: 'POST' });
+        const data = await res.json();
+        showToast('Marked ' + data.marked + ' movies as seen');
+      } catch(e) { showToast('Failed', true); }
+    }
+
+    async function init() {
+      attachGridListener();
+      await loadConfig();
+      await loadAppSettings();
+      await loadMovies();
+      startJobPoll();
+    }
+
+    init();
+  </script>
+</body>
+</html>

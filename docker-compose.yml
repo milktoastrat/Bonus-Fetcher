@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  extras-grabber:
+    build: .
+    container_name: extras-grabber
+    restart: unless-stopped
+    ports:
+      - "8772:8080"
+    volumes:
+      - /mnt/user/media/movies:/movies:rw
+    environment:
+      - MOVIES_PATH=/movies
+      - MEDIA_SERVER=emby   # Change to "plex" for Plex users
