@@ -447,6 +447,26 @@ def serve_poster(path: str):
         raise HTTPException(status_code=404, detail="Not found")
     return FileResponse(str(file_path))
 
+class FetchInfoRequest(BaseModel):
+    url: str
+
+@app.post("/api/fetch-info")
+def fetch_video_info(req: FetchInfoRequest):
+    ydl_opts = {"quiet": True, "no_warnings": True, "skip_download": True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(req.url, download=False)
+        vid_id = info.get("id", "")
+        return {
+            "id": vid_id,
+            "title": info.get("title", "Unknown"),
+            "url": req.url,
+            "thumbnail": info.get("thumbnail") or f"https://i.ytimg.com/vi/{vid_id}/mqdefault.jpg",
+            "duration": info.get("duration", 0),
+            "channel": info.get("channel") or info.get("uploader", "Unknown"),
+            "view_count": info.get("view_count", 0),
+            "suggested_category": guess_category(info.get("title", "")),
+        }
+
 class SearchRequest(BaseModel):
     movie_name: str
     max_results: int = 15

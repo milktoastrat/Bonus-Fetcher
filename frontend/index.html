@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bonus Fetcher</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='white'/><circle cx='16' cy='16' r='4.5' fill='%230d0a07'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
@@ -61,13 +62,26 @@
     }
 
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-disk { flex-shrink: 0; }
+    .logo-text { display: flex; flex-direction: column; gap: 3px; }
+    .logo-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px;
+      font-size: 22px;
       letter-spacing: 2px;
-      color: var(--accent);
+      color: var(--text);
       line-height: 1;
     }
-    .logo span { color: var(--text-muted); font-size: 13px; font-family: 'DM Sans', sans-serif; letter-spacing: 0; display: block; margin-top: 3px; font-weight: 400; }
+    .logo-tag {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      line-height: 1.4;
+      max-width: 180px;
+    }
 
     .search-box {
       margin: 12px 20px 0;
@@ -378,6 +392,75 @@
     .select-toggle:hover { border-color: var(--accent); color: var(--accent); }
     .result-card.selected .select-toggle { background: var(--accent); border-color: var(--accent); color: #0c0c0f; }
 
+    /* ─── URL Bar ─── */
+    .url-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      flex-shrink: 0;
+    }
+    .url-bar-input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .url-bar-input-row input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .url-bar-input-row input:focus { border-color: var(--accent); }
+    .url-bar-input-row input::placeholder { color: var(--text-muted); }
+    .url-preview {
+      margin-top: 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px;
+    }
+    .url-preview-thumb {
+      width: 100px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+    .url-preview-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .url-preview-title {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .url-preview-channel {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .url-preview-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
     /* ─── Download Queue ─── */
     .queue-panel {
       background: var(--surface);
@@ -616,7 +699,16 @@
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="logo">Bonus Fetcher<span>for Emby / Jellyfin</span></div>
+        <div class="logo">
+          <svg class="logo-disk" xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38">
+            <circle cx="19" cy="19" r="18" fill="white"/>
+            <circle cx="19" cy="19" r="5" fill="#131008"/>
+          </svg>
+          <div class="logo-text">
+            <span class="logo-title">Bonus Fetcher</span>
+            <span class="logo-tag">because the movie doesn't end at the credits</span>
+          </div>
+        </div>
       </div>
       <div class="search-box">
         <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
@@ -635,6 +727,13 @@
         <button class="btn btn-ghost btn-sm" onclick="showView('jobs')" id="jobsBtn" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Downloads</button>
         <button class="btn btn-ghost btn-sm" onclick="showSettingsView()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</button>
         <button class="btn btn-primary" id="searchBtn" style="display:none" onclick="doSearch()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Search YouTube</button>
+      </div>
+
+      <div class="url-bar" id="urlBar" style="display:none">
+        <div class="url-bar-input-row">
+          <input type="text" id="urlInput" placeholder="Paste a YouTube URL to add manually…" oninput="onUrlInput(this.value)" />
+        </div>
+        <div id="urlPreview" style="display:none"></div>
       </div>
 
       <div class="content-area" id="contentArea">
@@ -707,10 +806,6 @@
         const cfg = await res.json();
         mediaServer = cfg.media_server;
         CATEGORIES = cfg.categories;
-        const logoEl = document.querySelector('.logo span');
-        if (logoEl) {
-          logoEl.textContent = mediaServer === 'plex' ? 'for Plex' : 'for Emby / Jellyfin';
-        }
       } catch(e) {
         console.warn('Could not load config, using defaults');
       }
@@ -771,9 +866,100 @@
       document.getElementById('jobsBtn').style.display = '';
       document.getElementById('topFiveBtn').style.display = 'none';
       document.getElementById('queuePanel').style.display = '';
+      document.getElementById('urlBar').style.display = '';
+      clearUrlBar();
       updateQueueBar();
       renderSearchView();
       doSearch();
+    }
+
+    // ─── Manual URL bar ───
+    let urlFetchTimeout = null;
+    let urlPreviewResult = null;
+
+    function clearUrlBar() {
+      document.getElementById('urlInput').value = '';
+      document.getElementById('urlPreview').style.display = 'none';
+      document.getElementById('urlPreview').innerHTML = '';
+      urlPreviewResult = null;
+    }
+
+    function isYouTubeUrl(val) {
+      return /(?:youtube\.com\/watch|youtu\.be\/)/.test(val);
+    }
+
+    function onUrlInput(val) {
+      clearTimeout(urlFetchTimeout);
+      const preview = document.getElementById('urlPreview');
+      if (!isYouTubeUrl(val.trim())) {
+        preview.style.display = 'none';
+        urlPreviewResult = null;
+        return;
+      }
+      preview.style.display = '';
+      preview.innerHTML = `<div class="loading-state" style="height:56px;font-size:12px"><div class="spinner"></div> Fetching info…</div>`;
+      urlFetchTimeout = setTimeout(() => fetchUrlInfo(val.trim()), 400);
+    }
+
+    async function fetchUrlInfo(url) {
+      const preview = document.getElementById('urlPreview');
+      try {
+        const res = await fetch(`${API}/api/fetch-info`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ url }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const r = await res.json();
+        urlPreviewResult = r;
+        const dur = formatDuration(r.duration);
+        const cats = CATEGORIES.map(c =>
+          `<option value="${c}" ${r.suggested_category === c ? 'selected' : ''}>${c}</option>`
+        ).join('');
+        preview.innerHTML = `
+          <div class="url-preview">
+            <img class="url-preview-thumb" src="${r.thumbnail}" alt="" />
+            <div class="url-preview-info">
+              <div class="url-preview-title">${escapeHtml(r.title)}</div>
+              <div class="url-preview-channel">${icons.tv} ${escapeHtml(r.channel)}${dur ? ` · ${dur}` : ''}</div>
+            </div>
+            <div class="url-preview-actions">
+              <select class="cat-select" id="urlCatSelect">${cats}</select>
+              <button class="btn btn-download btn-sm" onclick="downloadUrlPreview()">${icons.download} Download</button>
+            </div>
+          </div>`;
+      } catch(e) {
+        preview.innerHTML = `<div style="color:var(--red);font-size:12px;padding:8px 0">${icons.warningSm} Could not fetch video info: ${escapeHtml(e.message)}</div>`;
+        urlPreviewResult = null;
+      }
+    }
+
+    async function downloadUrlPreview() {
+      if (!urlPreviewResult || !selectedMovie) return;
+      const category = document.getElementById('urlCatSelect')?.value || 'extras';
+      const r = urlPreviewResult;
+      const jobId = `job-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+      jobs[jobId] = { job_id: jobId, status: 'queued', title: r.title, url: r.url };
+      try {
+        await fetch(`${API}/api/download`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            movie_path: selectedMovie.path,
+            video_url: r.url,
+            video_title: r.title,
+            category,
+            job_id: jobId,
+          }),
+        });
+      } catch(e) {
+        jobs[jobId].status = 'error';
+        jobs[jobId].error = e.message;
+      }
+      clearUrlBar();
+      startJobPoll();
+      updateQueueBar();
+      document.getElementById('jobsBtn').style.display = '';
     }
 
     // ─── Search ───
