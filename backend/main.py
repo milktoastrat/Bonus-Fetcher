@@ -407,6 +407,9 @@ def mark_all_seen():
     save_seen_movies(current)
     return {"marked": len(current)}
 
+POSTER_NAMES = ["poster.jpg", "poster.png", "folder.jpg", "folder.png"]
+POSTER_SUFFIXES = ("-poster.jpg", "-poster.png", "-poster.jpeg")
+
 @app.get("/api/movies")
 def list_movies():
     movies_dir = Path(MOVIES_PATH)
@@ -424,8 +427,25 @@ def list_movies():
                     for f in cat_path.iterdir():
                         if f.suffix.lower() in ['.mkv', '.mp4', '.avi', '.mov']:
                             existing_extras.append({"category": folder_name, "filename": f.name})
-            movies.append({"name": item.name, "path": str(item), "existing_extras": existing_extras})
+            poster = next((p for p in POSTER_NAMES if (item / p).exists()), None)
+            if not poster:
+                poster = next(
+                    (f.name for f in item.iterdir()
+                     if f.is_file() and f.name.lower().endswith(POSTER_SUFFIXES)),
+                    None
+                )
+            movies.append({"name": item.name, "path": str(item), "existing_extras": existing_extras, "poster": poster})
     return movies
+
+@app.get("/api/poster/{path:path}")
+def serve_poster(path: str):
+    file_path = (Path(MOVIES_PATH) / path).resolve()
+    movies_root = Path(MOVIES_PATH).resolve()
+    if not str(file_path).startswith(str(movies_root)):
+        raise HTTPException(status_code=403, detail="Invalid path")
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Not found")
+    return FileResponse(str(file_path))
 
 class SearchRequest(BaseModel):
     movie_name: str

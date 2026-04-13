@@ -3,26 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Extras Grabber</title>
+  <title>Bonus Fetcher</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0c0c0f;
-      --surface: #13131a;
-      --surface2: #1c1c27;
-      --surface3: #242432;
-      --border: #2a2a3d;
-      --accent: #e8c84a;
-      --accent2: #c47af5;
-      --text: #e8e8f0;
-      --text-muted: #6b6b8a;
-      --text-dim: #9999b5;
-      --red: #f05c5c;
-      --green: #4af0a0;
-      --blue: #4ab0f0;
+      --bg: #0d0a07;
+      --surface: #131008;
+      --surface2: #1c1810;
+      --surface3: #252018;
+      --border: #3a3018;
+      --accent: #c8a044;
+      --accent2: #b87840;
+      --text: #ede5cc;
+      --text-muted: #7a6c50;
+      --text-dim: #a89060;
+      --red: #c85a3a;
+      --green: #7aaa6a;
+      --blue: #d49030;
       --radius: 10px;
     }
 
@@ -130,9 +130,17 @@
       border-radius: 4px;
       flex-shrink: 0;
     }
-    .movie-item.active .extras-badge { background: rgba(232,200,74,0.12); color: var(--accent); }
+    .movie-item.active .extras-badge { background: rgba(200,160,68,0.12); color: var(--accent); }
 
     .movie-icon { font-size: 16px; flex-shrink: 0; }
+    .movie-poster {
+      width: 34px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 3px;
+      flex-shrink: 0;
+      display: block;
+    }
 
     /* ─── Main Panel ─── */
     .main-header {
@@ -183,8 +191,8 @@
     .btn-ghost { background: var(--surface3); color: var(--text); }
     .btn-ghost:hover:not(:disabled) { background: var(--border); }
     .btn-sm { padding: 5px 10px; font-size: 12px; }
-    .btn-download { background: rgba(74,240,160,0.12); color: var(--green); border: 1px solid rgba(74,240,160,0.25); }
-    .btn-download:hover:not(:disabled) { background: rgba(74,240,160,0.2); }
+    .btn-download { background: rgba(122,170,106,0.12); color: var(--green); border: 1px solid rgba(122,170,106,0.25); }
+    .btn-download:hover:not(:disabled) { background: rgba(122,170,106,0.2); }
 
     /* ─── Content ─── */
     .content-area {
@@ -206,7 +214,7 @@
       gap: 12px;
       color: var(--text-muted);
     }
-    .empty-state .big-icon { font-size: 56px; opacity: 0.3; }
+    .empty-state .big-icon { opacity: 0.35; display: flex; }
     .empty-state h2 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; color: var(--text-dim); }
     .empty-state p { font-size: 13px; text-align: center; max-width: 300px; line-height: 1.6; }
 
@@ -242,30 +250,11 @@
       background: var(--border);
     }
 
-    .existing-extras {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 28px;
+    .downloaded-card {
+      cursor: pointer;
     }
-    .existing-chip {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 10px;
-      font-size: 12px;
-      color: var(--text-dim);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .existing-chip .cat-tag {
-      font-size: 10px;
-      background: var(--surface3);
-      padding: 1px 5px;
-      border-radius: 3px;
-      color: var(--accent);
-      font-family: 'DM Mono', monospace;
+    .downloaded-card:hover {
+      border-color: var(--accent2) !important;
     }
 
     /* ─── Results Grid ─── */
@@ -301,6 +290,19 @@
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 12px;
       z-index: 2;
+    }
+    .downloaded-badge {
+      position: absolute;
+      top: 6px; left: 6px;
+      background: var(--green);
+      color: #0c0c0f;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 7px;
+      border-radius: 4px;
+      line-height: 1.4;
+      z-index: 2;
+      pointer-events: none;
     }
 
     .card-thumb {
@@ -408,10 +410,10 @@
       border-radius: 4px;
       flex-shrink: 0;
     }
-    .job-status.queued { background: rgba(232,200,74,0.1); color: var(--accent); }
-    .job-status.downloading { background: rgba(74,176,240,0.1); color: var(--blue); }
-    .job-status.done { background: rgba(74,240,160,0.1); color: var(--green); }
-    .job-status.error { background: rgba(240,92,92,0.1); color: var(--red); }
+    .job-status.queued { background: rgba(200,160,68,0.1); color: var(--accent); }
+    .job-status.downloading { background: rgba(212,144,48,0.1); color: var(--blue); }
+    .job-status.done { background: rgba(122,170,106,0.1); color: var(--green); }
+    .job-status.error { background: rgba(200,90,58,0.1); color: var(--red); }
 
     /* ─── Tabs ─── */
     .tabs { display: flex; gap: 2px; margin-bottom: 20px; }
@@ -591,9 +593,9 @@
       background: var(--surface3); color: var(--text-muted);
       flex-shrink: 0;
     }
-    .score-badge.high { background: rgba(74,240,160,0.1); color: var(--green); }
-    .score-badge.mid { background: rgba(232,200,74,0.1); color: var(--accent); }
-    .score-badge.low { background: rgba(240,92,92,0.1); color: var(--red); }
+    .score-badge.high { background: rgba(122,170,106,0.1); color: var(--green); }
+    .score-badge.mid { background: rgba(200,160,68,0.1); color: var(--accent); }
+    .score-badge.low { background: rgba(200,90,58,0.1); color: var(--red); }
     .automation-status {
       display: flex; align-items: center; gap: 8px;
       padding: 10px 14px;
@@ -614,10 +616,10 @@
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="logo">Extras Grabber<span>for Emby / Jellyfin</span></div>
+        <div class="logo">Bonus Fetcher<span>for Emby / Jellyfin</span></div>
       </div>
       <div class="search-box">
-        <span class="icon">🔍</span>
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
         <input type="text" id="movieSearch" placeholder="Filter movies…" oninput="filterMovies(this.value)" />
       </div>
       <div class="movie-list" id="movieList">
@@ -630,14 +632,14 @@
       <div class="main-header" id="mainHeader">
         <h1 id="headerTitle">Select a Movie</h1>
         <div id="headerPath" class="path" style="display:none"></div>
-        <button class="btn btn-ghost btn-sm" onclick="showView('jobs')" id="jobsBtn" style="display:none">⬇ Downloads</button>
-        <button class="btn btn-ghost btn-sm" onclick="showSettingsView()">⚙ Settings</button>
-        <button class="btn btn-primary" id="searchBtn" style="display:none" onclick="doSearch()">🔎 Search YouTube</button>
+        <button class="btn btn-ghost btn-sm" onclick="showView('jobs')" id="jobsBtn" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Downloads</button>
+        <button class="btn btn-ghost btn-sm" onclick="showSettingsView()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</button>
+        <button class="btn btn-primary" id="searchBtn" style="display:none" onclick="doSearch()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg> Search YouTube</button>
       </div>
 
       <div class="content-area" id="contentArea">
         <div class="empty-state">
-          <div class="big-icon">🎬</div>
+          <div class="big-icon"><svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg></div>
           <h2>No Movie Selected</h2>
           <p>Pick a movie from the sidebar to search for official extras and special features on YouTube.</p>
         </div>
@@ -648,8 +650,8 @@
           <strong id="selectedCount">0</strong> selected &nbsp;·&nbsp;
           <span id="jobCount">0 downloads in queue</span>
         </div>
-        <button class="btn btn-ghost" id="topFiveBtn" onclick="downloadTopFive()" style="display:none">⬇ Top 5</button>
-        <button class="btn btn-download" id="downloadBtn" onclick="downloadSelected()" disabled>⬇ Download Selected</button>
+        <button class="btn btn-ghost" id="topFiveBtn" onclick="downloadTopFive()" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Top 5</button>
+        <button class="btn btn-download" id="downloadBtn" onclick="downloadSelected()" disabled><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Selected</button>
       </div>
     </div>
   </div>
@@ -657,6 +659,22 @@
   <script>
     const API = '';
     let allMovies = [];
+
+    const icons = {
+      film:     `<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>`,
+      filmSm:   `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>`,
+      search:   `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`,
+      warning:  `<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+      video:    `<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
+      check:    `<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+      inbox:    `<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
+      clock:    `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      checkSm:  `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+      xCircle:  `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+      download: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+      tv:         `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>`,
+      warningSm:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    };
     let filteredMovies = [];
     let selectedMovie = null;
     let searchResults = [];
@@ -706,7 +724,7 @@
         renderMovieList();
       } catch(e) {
         document.getElementById('movieList').innerHTML =
-          `<div class="no-movies">⚠️ Could not load movies.<br/><small>${e.message}</small></div>`;
+          `<div class="no-movies">${icons.warningSm} Could not load movies.<br/><small>${e.message}</small></div>`;
       }
     }
 
@@ -724,7 +742,9 @@
       }
       el.innerHTML = filteredMovies.map((m, i) => `
         <div class="movie-item ${selectedMovie?.name === m.name ? 'active' : ''}" onclick="selectMovieByIndex(${i})">
-          <span class="movie-icon">🎬</span>
+          ${m.poster
+            ? `<img class="movie-poster" src="/api/poster/${encodeURIComponent(m.name)}/${m.poster}" alt="" loading="lazy" />`
+            : `<span class="movie-icon">${icons.filmSm}</span>`}
           <span class="movie-name">${escapeHtml(m.name)}</span>
           ${m.existing_extras.length ? `<span class="extras-badge">${m.existing_extras.length}</span>` : ''}
         </div>
@@ -760,7 +780,7 @@
     async function doSearch() {
       const btn = document.getElementById('searchBtn');
       btn.disabled = true;
-      btn.textContent = '⏳ Searching…';
+      btn.innerHTML = `${icons.clock} Searching…`;
       renderLoading();
 
       try {
@@ -773,10 +793,10 @@
         renderSearchView();
       } catch(e) {
         document.getElementById('contentArea').innerHTML =
-          `<div class="empty-state"><div class="big-icon">⚠️</div><h2>Search Failed</h2><p>${e.message}</p></div>`;
+          `<div class="empty-state"><div class="big-icon">${icons.warning}</div><h2>Search Failed</h2><p>${e.message}</p></div>`;
       } finally {
         btn.disabled = false;
-        btn.textContent = '🔎 Search YouTube';
+        btn.innerHTML = `${icons.search} Search YouTube`;
       }
     }
 
@@ -789,21 +809,14 @@
       const ca = document.getElementById('contentArea');
       let html = '';
 
-      // Existing extras
-      if (selectedMovie.existing_extras.length) {
-        html += `<div class="section-title">Already Downloaded</div>
-        <div class="existing-extras">
-          ${selectedMovie.existing_extras.map(e => `
-            <div class="existing-chip">
-              <span class="cat-tag">${e.category}</span>
-              ${e.filename}
-            </div>`).join('')}
-        </div>`;
+      if (currentView === 'jobs') {
+        renderJobsView();
+        return;
       }
 
-      if (!searchResults.length && currentView === 'search') {
+      if (!searchResults.length) {
         html += `<div class="empty-state" style="height:200px">
-          <div class="big-icon">🎥</div>
+          <div class="big-icon">${icons.video}</div>
           <h2>Ready to Search</h2>
           <p>Click "Search YouTube" to find official extras for this movie.</p>
         </div>`;
@@ -811,25 +824,68 @@
         return;
       }
 
-      if (currentView === 'jobs') {
-        renderJobsView();
-        return;
-      }
+      const newResults = searchResults.filter(r => !isAlreadyDownloaded(r));
+      const downloadedResults = searchResults.filter(r => isAlreadyDownloaded(r));
 
-      html += `<div class="section-title">YouTube Results</div>
-      <div class="results-grid">
-        ${searchResults.map(r => renderCard(r)).join('')}
-      </div>`;
+      if (newResults.length) {
+        html += `<div class="section-title">YouTube Results</div>
+        <div class="results-grid">
+          ${newResults.map(r => renderCard(r)).join('')}
+        </div>`;
+      } else {
+        html += `<div class="empty-state" style="height:160px">
+          <div class="big-icon">${icons.check}</div>
+          <h2>All results already downloaded</h2>
+        </div>`;
+      }
 
       if (Object.keys(jobs).length) {
         html += `<div class="section-title" style="margin-top:28px">Download History</div>`;
         html += renderJobsHtml();
       }
 
+      if (downloadedResults.length) {
+        html += `<div class="section-title" style="margin-top:28px">Already Downloaded</div>
+        <div class="results-grid">
+          ${downloadedResults.map(r => renderDownloadedCard(r)).join('')}
+        </div>`;
+      }
+
       ca.innerHTML = html;
-      if (searchResults.length) {
+      if (newResults.length) {
         document.getElementById('topFiveBtn').style.display = '';
       }
+    }
+
+    function renderDownloadedCard(r) {
+      const dur = formatDuration(r.duration);
+      return `
+        <div class="result-card downloaded-card" onclick="window.open('${escapeHtml(r.url)}', '_blank')">
+          <div class="card-thumb">
+            <img src="${r.thumbnail}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22><rect fill=%22%231c1810%22 width=%22320%22 height=%22180%22/><rect x=%22120%22 y=%2260%22 width=%2280%22 height=%2260%22 rx=%223%22 fill=%22none%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22120%22 y1=%2275%22 x2=%22200%22 y2=%2275%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22120%22 y1=%22105%22 x2=%22200%22 y2=%22105%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22135%22 y1=%2260%22 x2=%22135%22 y2=%22120%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22185%22 y1=%2260%22 x2=%22185%22 y2=%22120%22 stroke=%22%233a3018%22 stroke-width=%222%22/></svg>'" />
+            <span class="downloaded-badge">✓ Downloaded</span>
+            ${dur ? `<span class="card-duration">${dur}</span>` : ''}
+          </div>
+          <div class="card-body" style="cursor:pointer">
+            <div class="card-title">${escapeHtml(r.title)}</div>
+            <div class="card-channel">${icons.tv} ${escapeHtml(r.channel)}</div>
+          </div>
+        </div>`;
+    }
+
+    function isAlreadyDownloaded(r) {
+      // Current-session download that completed
+      if (Object.values(jobs).some(j => j.url === r.url && j.status === 'done')) return true;
+      // File already exists on disk — fuzzy match title against existing filenames
+      if (selectedMovie && selectedMovie.existing_extras.length) {
+        const normalize = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const normTitle = normalize(r.title);
+        return selectedMovie.existing_extras.some(e => {
+          const normFile = normalize(e.filename.replace(/\.[^.]+$/, ''));
+          return normFile.length > 4 && (normTitle.includes(normFile) || normFile.includes(normTitle));
+        });
+      }
+      return false;
     }
 
     function renderCard(r) {
@@ -842,12 +898,12 @@
       return `
         <div class="result-card ${isSelected ? 'selected' : ''}" id="card-${r.id}" data-id="${escapeHtml(r.id)}">
           <div class="card-thumb card-toggle" data-id="${escapeHtml(r.id)}">
-            <img src="${r.thumbnail}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22><rect fill=%22%231c1c27%22 width=%22320%22 height=%22180%22/><text x=%22160%22 y=%2295%22 text-anchor=%22middle%22 fill=%22%236b6b8a%22 font-size=%2232%22>🎬</text></svg>'" />
+            <img src="${r.thumbnail}" alt="" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22320%22 height=%22180%22><rect fill=%22%231c1810%22 width=%22320%22 height=%22180%22/><rect x=%22120%22 y=%2260%22 width=%2280%22 height=%2260%22 rx=%223%22 fill=%22none%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22120%22 y1=%2275%22 x2=%22200%22 y2=%2275%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22120%22 y1=%22105%22 x2=%22200%22 y2=%22105%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22135%22 y1=%2260%22 x2=%22135%22 y2=%22120%22 stroke=%22%233a3018%22 stroke-width=%222%22/><line x1=%22185%22 y1=%2260%22 x2=%22185%22 y2=%22120%22 stroke=%22%233a3018%22 stroke-width=%222%22/></svg>'" />
             ${dur ? `<span class="card-duration">${dur}</span>` : ''}
           </div>
           <div class="card-body card-toggle" data-id="${escapeHtml(r.id)}" style="cursor:pointer">
             <div class="card-title">${escapeHtml(r.title)}</div>
-            <div class="card-channel">📺 ${escapeHtml(r.channel)}</div>
+            <div class="card-channel">${icons.tv} ${escapeHtml(r.channel)}</div>
           </div>
           <div class="card-footer">
             <select class="cat-select" id="cat-${r.id}" data-id="${escapeHtml(r.id)}">
@@ -936,7 +992,7 @@
 
       for (const [url, {title, category}] of entries) {
         const jobId = `job-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
-        jobs[jobId] = { job_id: jobId, status: 'queued', title };
+        jobs[jobId] = { job_id: jobId, status: 'queued', title, url };
 
         try {
           await fetch(`${API}/api/download`, {
@@ -972,7 +1028,7 @@
       const ca = document.getElementById('contentArea');
       if (!Object.keys(jobs).length) {
         ca.innerHTML = `<div class="empty-state">
-          <div class="big-icon">📭</div>
+          <div class="big-icon">${icons.inbox}</div>
           <h2>No Downloads Yet</h2>
           <p>Select videos and hit Download to start.</p>
         </div>`;
@@ -984,7 +1040,7 @@
     function renderJobsHtml() {
       return `<div class="jobs-list">
         ${Object.values(jobs).reverse().map(j => {
-          const icon = j.status === 'done' ? '✅' : j.status === 'error' ? '❌' : j.status === 'downloading' ? '⬇️' : '⏳';
+          const icon = j.status === 'done' ? icons.checkSm : j.status === 'error' ? icons.xCircle : j.status === 'downloading' ? icons.download : icons.clock;
           const pct = j.percent || 0;
           const fillClass = j.status === 'done' ? 'done' : j.status === 'error' ? 'error' : '';
           const showBar = j.status === 'downloading' || j.status === 'done' || j.status === 'error';
@@ -1011,16 +1067,23 @@
     function startJobPoll() {
       jobPollInterval = setInterval(async () => {
         const activeJobs = Object.values(jobs).filter(j => j.status === 'queued' || j.status === 'downloading');
+        let anyCompleted = false;
         for (const job of activeJobs) {
           try {
             const res = await fetch(`${API}/api/jobs/${job.job_id}`);
             const updated = await res.json();
             jobs[job.job_id] = { ...jobs[job.job_id], ...updated };
+            if (updated.status === 'done') anyCompleted = true;
           } catch(e) {}
         }
         updateQueueBar();
         if (currentView === 'jobs') renderJobsView();
+        else if (anyCompleted) updateDownloadedBadges();
       }, 2500);
+    }
+
+    function updateDownloadedBadges() {
+      if (currentView === 'search' && searchResults.length) renderSearchView();
     }
 
     // ─── Utils ───

@@ -1,4 +1,4 @@
-# Extras Grabber
+# Bonus Fetcher
 
 Search YouTube for official special features (behind the scenes, deleted scenes, interviews, featurettes) and download them directly into your Emby/Jellyfin library structure.
 
@@ -22,14 +22,14 @@ In Unraid → Apps → search **"Compose Manager"** → Install.
 
 ```bash
 # SSH into Unraid
-scp -r extras-grabber/ root@YOUR_UNRAID_IP:/mnt/user/appdata/extras-grabber
+scp -r bonus-fetcher/ root@YOUR_UNRAID_IP:/mnt/user/appdata/bonus-fetcher
 ```
 
-Or use the Unraid file manager to upload the folder to `/mnt/user/appdata/extras-grabber`.
+Or use the Unraid file manager to upload the folder to `/mnt/user/appdata/bonus-fetcher`.
 
 ### 3. Edit docker-compose.yml
 
-Open `/mnt/user/appdata/extras-grabber/docker-compose.yml` and update the movies volume path:
+Open `/mnt/user/appdata/bonus-fetcher/docker-compose.yml` and update the movies volume path:
 
 ```yaml
 volumes:
@@ -40,8 +40,8 @@ volumes:
 
 - Go to **Docker** tab → **Compose Manager**
 - Click **Add New Stack**
-- Name it `extras-grabber`
-- Set the path to `/mnt/user/appdata/extras-grabber`
+- Name it `bonus-fetcher`
+- Set the path to `/mnt/user/appdata/bonus-fetcher`
 - Click **Compose Up**
 
 ### 5. Open the UI
@@ -53,15 +53,15 @@ Navigate to `http://YOUR_UNRAID_IP:8787`
 ## Manual Docker Run (alternative)
 
 ```bash
-docker build -t extras-grabber /mnt/user/appdata/extras-grabber
+docker build -t bonus-fetcher /mnt/user/appdata/bonus-fetcher
 
 docker run -d \
-  --name extras-grabber \
+  --name bonus-fetcher \
   --restart unless-stopped \
   -p 8787:8080 \
   -v /mnt/user/Media/Movies:/movies:rw \
   -e MOVIES_PATH=/movies \
-  extras-grabber
+  bonus-fetcher
 ```
 
 ---
@@ -95,7 +95,7 @@ Emby will automatically pick these up — no library rescans needed beyond the n
 YouTube changes frequently. If downloads stop working, update yt-dlp inside the container:
 
 ```bash
-docker exec -it extras-grabber pip install -U yt-dlp
+docker exec -it bonus-fetcher pip install -U yt-dlp
 ```
 
 Or just rebuild the container.

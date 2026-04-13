@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  extras-grabber:
+  bonus-fetcher:
     build: .
-    container_name: extras-grabber
+    container_name: bonus-fetcher
     restart: unless-stopped
     ports:
       - "8772:8080"
