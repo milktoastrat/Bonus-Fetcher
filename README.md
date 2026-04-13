@@ -1,3 +1,5 @@
+<img width="1509" height="1183" alt="image" src="https://github.com/user-attachments/assets/25602046-e909-4a09-84f4-ec466ef27d8a" />
+
 # Bonus Fetcher
 
 Search YouTube for official special features (behind the scenes, deleted scenes, interviews, featurettes) and download them directly into your Emby/Jellyfin library structure.
