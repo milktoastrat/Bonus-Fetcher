@@ -2,7 +2,7 @@
 
 # Bonus Fetcher
 
-Search YouTube for official special features (behind the scenes, deleted scenes, interviews, featurettes) and download them directly into your Emby, Jellyfin, or Plex library. 
+Search YouTube for special features (behind the scenes, deleted scenes, interviews, featurettes) and download them directly into your Emby, Jellyfin, or Plex library. 
 
 **NOTE**: This app was made with Claude Code. I am not a developer, I just wanted this tool to exist. ❤️
 
